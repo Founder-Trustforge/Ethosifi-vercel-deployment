@@ -356,7 +356,59 @@
       </div>
     </div>
   </div>
+  
+    <!-- REPORT SCAM PAGE -->
+    <div id="reportScam" class="page">
+      <div class="panel">
+        <h2>Report Suspicious Activity</h2>
+        
+        <p style="color:#6ee7b7;font-weight:600;margin-bottom:1rem;background:rgba(13,148,136,0.1);padding:1rem;border-radius:8px;">
+          ⚠️ EthosiFi does NOT investigate or punish scams. We provide tools to report verified on-chain misconduct to official authorities. All reports are stored locally for Ethoscan Score adjustments only.
+        </p>
 
+        <h3 style="margin-top:1.2rem;">✅ Step 1: Verify On-Chain Evidence</h3>
+        <p style="margin-bottom:0.8rem;">Only report if you have <strong>on-chain proof</strong>:</p>
+        <ul style="padding-left:1.8rem;margin:0.8rem 0;text-align:left;color:#6ee7b7;">
+          <li>LP unlocked before promised date</li>
+          <li>Treasury drained from non-Gnosis wallet</li>
+          <li>Team impersonation (ENS/SIWE mismatch)</li>
+          <li>Fake audit reports or contract copies</li>
+        </ul>
+
+        <h3 style="margin-top:1.2rem;">✅ Step 2: Report to Authorities FIRST</h3>
+        <div style="background:rgba(0,0,0,0.3);padding:1.2rem;border-radius:10px;margin:1rem 0;text-align:left;border-left:3px solid #6ee7b7;">
+          <strong style="color:#6ee7b7;">Official Channels (Required):</strong><br />
+          • <a href="https://support.metamask.io/hc/en-us/requests/new?ticket_form_id=360007372431" target="_blank" rel="noopener noreferrer" style="color:#6ee7b7;text-decoration:underline;">MetaMask Scam Report</a><br />
+          • <a href="https://chainabuse.com/report" target="_blank" rel="noopener noreferrer" style="color:#6ee7b7;text-decoration:underline;">ChainAbuse Report Form</a><br />
+          • <a href="https://www.ic3.gov" target="_blank" rel="noopener noreferrer" style="color:#6ee7b7;text-decoration:underline;">FBI IC3 (US)</a>
+        </div>
+        <p style="font-size:0.9rem;opacity:0.85;margin-top:0.5rem;">⚠️ EthosiFi reports are ONLY used to adjust Ethoscan Scores. Enforcement requires official channels above.</p>
+
+        <h3 style="margin-top:1.5rem;">✅ Step 3: Notify EthosiFi (For Score Adjustment)</h3>
+        <form id="reportForm" onsubmit="handleReportSubmit(event)">
+          <div class="form-group">
+            <label>Project Name or Address <span style="color:#f87171">*</span></label>
+            <input type="text" id="reportProject" placeholder="0x... or projectname.eth" required />
+          </div>
+          
+          <div class="form-group">
+            <label>On-Chain Evidence <span style="color:#f87171">*</span></label>
+            <textarea id="reportEvidence" placeholder="Tx hash, ENS mismatch proof, LP unlock date violation, etc." required></textarea>
+            <p style="font-size:0.85rem;opacity:0.7;margin-top:0.3rem;">Include blockchain explorer links (basescan.org, etc.)</p>
+          </div>
+          
+          <div class="form-group">
+            <label>Your Contact (Optional)</label>
+            <input type="email" id="reportContact" placeholder="you@example.com" />
+          </div>
+          
+          <div style="display:flex;gap:0.8rem;margin-top:1.5rem;flex-wrap:wrap;">
+            <button type="submit" class="btn">Submit to EthosiFi</button>
+            <button type="button" class="btn btn-outline" onclick="showPage('loginPage')">Back to Home</button>
+          </div>
+        </form>
+      </div>
+    </div>
   <div class="footer">
     © 2026 EthosiFi Protocol — Building the immune system for Web4.<br />
     Real-time verification powered by Base Mainnet • ethosifi.com
@@ -765,6 +817,42 @@
         btn.textContent = "Check Signals";
       }
     }
+    
+    // Handle scam report submission
+function handleReportSubmit(e) {
+  e.preventDefault();
+  
+  const project = document.getElementById('reportProject').value.trim();
+  const evidence = document.getElementById('reportEvidence').value.trim();
+  const contact = document.getElementById('reportContact').value.trim();
+  
+  if (!project || !evidence) {
+    alert('⚠️ Please fill in required fields (Project and Evidence).');
+    return;
+  }
+  
+  // Create report object
+  const report = {
+    id: 'REPORT-' + Date.now(),
+    project: project,
+    evidence: evidence,
+    contact: contact || 'Anonymous',
+    timestamp: new Date().toISOString(),
+    status: 'pending_review'
+  };
+  
+  // Save to localStorage (persistent across sessions)
+  const reports = JSON.parse(localStorage.getItem('ethosifi_scam_reports')) || [];
+  reports.push(report);
+  localStorage.setItem('ethosifi_scam_reports', JSON.stringify(reports));
+  
+  // Show confirmation with critical disclaimer
+  alert(`✅ REPORT SUBMITTED SUCCESSFULLY\n\nReport ID: ${report.id}\nTimestamp: ${new Date().toLocaleString()}\n\n⚠️ CRITICAL REMINDER:\n• EthosiFi does NOT investigate or punish scams\n• This report ONLY adjusts Ethoscan Scores\n• You MUST report to authorities (MetaMask/ChainAbuse/FBI) for enforcement\n• Keep your Report ID for reference\n\nThank you for helping secure Web4.`);
+  
+  // Reset form and return home
+  document.getElementById('reportForm').reset();
+  showPage('loginPage');
+}
     
     // Auto-load projects if investor is logged in
     window.addEventListener('load', () => {
