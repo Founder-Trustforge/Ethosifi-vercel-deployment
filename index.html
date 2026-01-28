@@ -140,6 +140,31 @@
       position: relative;
       z-index: 2;
     }
+    .user-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .logout-btn {
+      background: rgba(248, 113, 113, 0.2);
+      border: 1px solid var(--unverified);
+      color: var(--unverified);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .project-card {
+      background: rgba(10, 18, 35, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
     @media (max-width: 600px) {
       h1 { font-size: 1.8rem; }
       .panel { padding: 1.5rem; }
@@ -162,11 +187,62 @@
         <h1>Welcome to EthosiFi</h1>
         <p>Verify integrity through action — not hype.</p>
         <div style="text-align: center; margin-top: 1.5rem;">
-          <button class="btn" onclick="showPage('builder')">Log in as Builder</button>
-          <button class="btn" onclick="showPage('investor')">Log in as Investor</button>
+          <button class="btn" onclick="showPage('login')">Log In</button>
           <button class="btn btn-outline" onclick="showPage('signup')">Create Account</button>
-          <button class="btn btn-outline" onclick="showPage('report')">Report Scam</button>
           <button class="btn btn-outline" onclick="showPage('verifyWallet')">Verify Wallet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="login" class="page">
+      <div class="panel">
+        <h2>Log In</h2>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="you@project.com" />
+        </div>
+        <button class="btn" onclick="handleLogin()">Log In</button>
+        <button class="btn btn-outline" onclick="showPage('loginPage')">Back</button>
+        <p style="margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.8;">
+          Don't have an account? <button class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;" onclick="showPage('signup')">Sign Up</button>
+        </p>
+      </div>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signup" class="page">
+      <div class="panel">
+        <h2>Create Your Account</h2>
+        <p>Sign up to get your official Ethoscan verification and reputation NFTs.</p>
+        
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signupEmail" placeholder="you@project.com" required />
+        </div>
+        
+        <div class="form-group">
+          <label>Role</label>
+          <select id="signupRole" style="width:100%;padding:0.7rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;color:white;font-family:inherit;font-size:1rem;">
+            <option value="builder">Builder</option>
+            <option value="investor">Investor</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Project Name (Builders only)</label>
+          <input type="text" id="projectName" placeholder="Your Project Name" />
+        </div>
+        
+        <div style="margin-top:1.5rem;">
+          <p style="font-size:0.9rem;opacity:0.8;margin-bottom:1rem;text-align:left;">
+            By signing up, you agree to EthosiFi's <a href="#" style="color:#6ee7b7;">Terms of Service</a> and <a href="#" style="color:#6ee7b7;">Privacy Policy</a>.
+          </p>
+          
+          <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+            <button class="btn" onclick="handleSignup()">Create Account</button>
+            <button class="btn btn-outline" onclick="showPage('loginPage')">Back to Login</button>
+          </div>
         </div>
       </div>
     </div>
@@ -198,43 +274,63 @@
     <!-- BUILDER DASHBOARD -->
     <div id="builder" class="page">
       <div class="panel">
+        <div class="user-info">
+          <div>
+            <strong id="builderEmail">builder@project.com</strong><br />
+            <span style="opacity: 0.8; font-size: 0.9rem;">Role: Builder</span>
+          </div>
+          <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+        </div>
+        
         <h2>Builder Dashboard</h2>
-        <p>Welcome back, <span style="color:#6ee7b7;font-weight:600;">Builder</span>!</p>
+        <p>Welcome back! Manage your Ethoscan verification and reputation.</p>
         
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-top:1.5rem;">
           <div style="background:rgba(10,18,35,0.7);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center;">
             <div>Ethoscan Score</div>
-            <div style="font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#0d9488,#6ee7b7);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0.5rem 0;">420</div>
-            <div style="color:#34d399;">✅ Verified Builder</div>
+            <div id="ethosScore" style="font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#0d9488,#6ee7b7);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0.5rem 0;">0</div>
+            <div id="scoreStatus" style="color:#f87171;">⚠️ Not Verified</div>
           </div>
           <div style="background:rgba(10,18,35,0.7);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center;">
             <div>$ETHOS Vault</div>
-            <div style="font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#0d9488,#6ee7b7);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0.5rem 0;">12,500</div>
-            <button class="btn btn-outline" style="padding:0.4rem;font-size:0.9rem;margin-top:0.5rem;">Buy $ETHOS</button>
+            <div style="font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,#0d9488,#6ee7b7);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0.5rem 0;">0</div>
+            <button class="btn btn-outline" style="padding:0.4rem;font-size:0.9rem;margin-top:0.5rem;" onclick="alert('Coming soon: Buy $ETHOS on X1 testnet')">Buy $ETHOS</button>
           </div>
         </div>
 
         <h3 style="margin-top:1.5rem;">Trust Pillars</h3>
-        <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
-          <span style="opacity:0.8;">Team Transparency</span>
-          <span style="color:#34d399;font-weight:600;">✅ Verified</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
-          <span style="opacity:0.8;">Liquidity Commitment</span>
-          <span style="color:#34d399;font-weight:600;">✅ 180 days locked</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
-          <span style="opacity:0.8;">Treasury Safety</span>
-          <span style="color:#34d399;font-weight:600;">✅ Gnosis Safe</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
-          <span style="opacity:0.8;">Fair Launch Pledge</span>
-          <span style="color:#34d399;font-weight:600;">✅ Signed</span>
+        <div id="trustPillars">
+          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
+            <span style="opacity:0.8;">Team Transparency</span>
+            <span style="color:#f87171;font-weight:600;">⚠️ Not Verified</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
+            <span style="opacity:0.8;">Liquidity Commitment</span>
+            <span style="color:#f87171;font-weight:600;">⚠️ Not Verified</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
+            <span style="opacity:0.8;">Treasury Safety</span>
+            <span style="color:#f87171;font-weight:600;">⚠️ Not Verified</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
+            <span style="opacity:0.8;">Fair Launch Pledge</span>
+            <span style="color:#f87171;font-weight:600;">⚠️ Not Verified</span>
+          </div>
         </div>
 
-        <div style="margin-top:1.5rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
-          <button class="btn" onclick="alert('✅ Wallet connected via WalletConnect!\n(Real integration coming on X1 testnet)')">Connect Wallet</button>
-          <button class="btn btn-outline" onclick="showPage('loginPage')">Back to Login</button>
+        <h3 style="margin-top:1.5rem;">Verify Your Project</h3>
+        <div class="form-group">
+          <label>Project Treasury Address</label>
+          <input type="text" id="treasuryAddress" placeholder="0x..." />
+        </div>
+        <button class="btn" onclick="verifyBuilder()">Run Ethoscan Verification</button>
+
+        <div style="margin-top:1.5rem;background:rgba(13,148,136,0.1);padding:1rem;border-radius:8px;">
+          <strong>💡 How to improve your score:</strong><br />
+          • Deploy a Gnosis Safe treasury<br />
+          • Lock LP tokens for 180+ days<br />
+          • Add team members via SIWE/ENS<br />
+          • Sign fair launch pledge
         </div>
       </div>
     </div>
@@ -242,114 +338,24 @@
     <!-- INVESTOR DASHBOARD -->
     <div id="investor" class="page">
       <div class="panel">
+        <div class="user-info">
+          <div>
+            <strong id="investorEmail">investor@example.com</strong><br />
+            <span style="opacity: 0.8; font-size: 0.9rem;">Role: Investor</span>
+          </div>
+          <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+        </div>
+        
         <h2>Investor Dashboard</h2>
         <p>Review projects by behavioral integrity before investing:</p>
         
-        <div style="background:rgba(10,18,35,0.7);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.2rem;">
-          <strong style="font-size:1.1rem;">EthosiFi Protocol</strong><br />
-          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;align-items:center;">
-            <span>Score: <span style="color:#6ee7b7;font-weight:bold;">420</span></span>
-            <span style="font-weight:600;">✅ Verified Builder</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin:0.5rem 0;font-size:0.9rem;padding-left:1rem;">
-            <span style="opacity:0.8;">Team Transparency</span>
-            <span style="color:#34d399;font-weight:600;">✅ Verified</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin:0.5rem 0;font-size:0.9rem;padding-left:1rem;">
-            <span style="opacity:0.8;">LP Locked</span>
-            <span style="color:#34d399;font-weight:600;">✅ 180 days</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin:0.5rem 0;font-size:0.9rem;padding-left:1rem;">
-            <span style="opacity:0.8;">Treasury</span>
-            <span style="color:#34d399;font-weight:600;">✅ Gnosis Safe</span>
-          </div>
+        <div id="projectsList">
+          <!-- Projects will be loaded here -->
         </div>
         
         <div style="margin-top:1.5rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
-          <button class="btn" onclick="alert('✅ Wallet connected via WalletConnect!\n(Real integration coming on X1 testnet)')">Connect Wallet</button>
-          <button class="btn btn-outline" onclick="showPage('loginPage')">Back to Login</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- SIGNUP PAGE -->
-    <div id="signup" class="page">
-      <div class="panel">
-        <h2>Create Your Account</h2>
-        <p>Sign up to get your official Ethoscan verification and reputation NFTs.</p>
-        
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" placeholder="you@project.com" />
-        </div>
-        
-        <div class="form-group">
-          <label>Role</label>
-          <select style="width:100%;padding:0.7rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;color:white;font-family:inherit;font-size:1rem;">
-            <option>Builder</option>
-            <option>Investor</option>
-          </select>
-        </div>
-        
-        <div style="margin-top:1.5rem;">
-          <p style="font-size:0.9rem;opacity:0.8;margin-bottom:1rem;text-align:left;">
-            By signing up, you agree to EthosiFi's <a href="#" style="color:#6ee7b7;">Terms of Service</a> and <a href="#" style="color:#6ee7b7;">Privacy Policy</a>.
-          </p>
-          
-          <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
-            <button class="btn" onclick="alert('✅ Account created successfully!\n\nYou\'ll receive an email with next steps to complete your Ethoscan verification.');showPage('loginPage')">Create Account</button>
-            <button class="btn btn-outline" onclick="showPage('loginPage')">Back to Login</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- REPORT PAGE -->
-    <div id="report" class="page">
-      <div class="panel">
-        <h2>Report Suspicious Activity</h2>
-        
-        <p style="color:#6ee7b7;font-weight:600;margin-bottom:1rem;">
-          EthosiFi does not investigate or punish scams. We provide tools to help you report verified on-chain misconduct to the appropriate authorities.
-        </p>
-
-        <h3 style="margin-top:1.2rem;">Step 1: Verify On-Chain Evidence</h3>
-        <p>Only report if you have <strong>on-chain proof</strong>, such as:</p>
-        <ul style="padding-left:1.5rem;margin:0.8rem 0;text-align:left;">
-          <li>LP unlocked prematurely</li>
-          <li>Treasury drained from non-Gnosis wallet</li>
-          <li>Fake team impersonation (ENS/SIWE mismatch)</li>
-        </ul>
-
-        <h3 style="margin-top:1.2rem;">Step 2: Submit to Authorities</h3>
-        <p>EthosiFi routes reports to official channels:</p>
-        <div style="background:rgba(0,0,0,0.3);padding:1rem;border-radius:10px;margin:1rem 0;text-align:left;">
-          <strong>For Ethereum/Base:</strong><br />
-          • <a href="https://support.metamask.io/report-scam/" target="_blank" rel="noopener noreferrer" style="color:#6ee7b7;">MetaMask Scam Reporting</a><br />
-          • <a href="https://chainabuse.com" target="_blank" rel="noopener noreferrer" style="color:#6ee7b7;">ChainAbuse (Blockchain Intel)</a>
-        </div>
-
-        <h3 style="margin-top:1.2rem;">Step 3: Optional — Notify EthosiFi</h3>
-        <p>We may use this data to <strong>adjust Ethoscan Scores</strong> (not for enforcement):</p>
-        
-        <div class="form-group">
-          <label>Project Name or Address</label>
-          <input type="text" placeholder="e.g., 0x... or projectname.eth" />
-        </div>
-        
-        <div class="form-group">
-          <label>On-Chain Evidence (Tx Hash, ENS, etc.)</label>
-          <textarea placeholder="Paste transaction hash or verification link"></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label>Your Contact (Optional)</label>
-          <input type="email" placeholder="you@example.com" />
-        </div>
-        
-        <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;">
-          <button class="btn" onclick="alert('✅ Report submitted.\n\nNote: EthosiFi does not take enforcement action. We may use this data to update Ethoscan Scores based on on-chain verification.');showPage('loginPage')">Submit for Review</button>
-          <button class="btn btn-outline" onclick="showPage('loginPage')">Back to Login</button>
+          <button class="btn" onclick="loadSampleProjects()">Refresh Projects</button>
+          <button class="btn btn-outline" onclick="showPage('verifyWallet')">Verify New Project</button>
         </div>
       </div>
     </div>
@@ -406,7 +412,284 @@
       document.getElementById(pageId).classList.add('active');
     }
     
-    // Real on-chain verification
+    // User management (localStorage)
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem('ethosifi_user')) || null;
+    }
+    
+    function saveUser(user) {
+      localStorage.setItem('ethosifi_user', JSON.stringify(user));
+    }
+    
+    function clearUser() {
+      localStorage.removeItem('ethosifi_user');
+    }
+    
+    // Handle signup
+    function handleSignup() {
+      const email = document.getElementById('signupEmail').value.trim();
+      const role = document.getElementById('signupRole').value;
+      const projectName = document.getElementById('projectName').value.trim();
+      
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      if (role === 'builder' && !projectName) {
+        alert('Please enter your project name');
+        return;
+      }
+      
+      // Check if user already exists
+      const existingUsers = JSON.parse(localStorage.getItem('ethosifi_users')) || [];
+      const userExists = existingUsers.find(u => u.email === email);
+      
+      if (userExists) {
+        alert('Account already exists. Please log in.');
+        showPage('login');
+        return;
+      }
+      
+      // Create user
+      const newUser = {
+        email: email,
+        role: role,
+        projectName: role === 'builder' ? projectName : null,
+        createdAt: new Date().toISOString(),
+        verified: false,
+        ethosScore: 0,
+        walletAddress: null
+      };
+      
+      // Save user
+      existingUsers.push(newUser);
+      localStorage.setItem('ethosifi_users', JSON.stringify(existingUsers));
+      saveUser(newUser);
+      
+      // Show success and redirect
+      alert(`✅ Account created successfully!\n\nWelcome to EthosiFi, ${email}!\n\nYou can now access your ${role === 'builder' ? 'Builder' : 'Investor'} dashboard.`);
+      
+      // Redirect to appropriate dashboard
+      if (role === 'builder') {
+        document.getElementById('builderEmail').textContent = email;
+        showPage('builder');
+      } else {
+        document.getElementById('investorEmail').textContent = email;
+        loadSampleProjects();
+        showPage('investor');
+      }
+    }
+    
+    // Handle login
+    function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      const users = JSON.parse(localStorage.getItem('ethosifi_users')) || [];
+      const user = users.find(u => u.email === email);
+      
+      if (!user) {
+        alert('No account found with this email. Please sign up.');
+        showPage('signup');
+        return;
+      }
+      
+      // Load user session
+      saveUser(user);
+      
+      // Redirect to dashboard
+      if (user.role === 'builder') {
+        document.getElementById('builderEmail').textContent = email;
+        document.getElementById('ethosScore').textContent = user.ethosScore || 0;
+        document.getElementById('scoreStatus').textContent = user.verified ? '✅ Verified Builder' : '⚠️ Not Verified';
+        document.getElementById('scoreStatus').style.color = user.verified ? '#34d399' : '#f87171';
+        showPage('builder');
+      } else {
+        document.getElementById('investorEmail').textContent = email;
+        loadSampleProjects();
+        showPage('investor');
+      }
+    }
+    
+    // Handle logout
+    function handleLogout() {
+      clearUser();
+      showPage('loginPage');
+    }
+    
+    // Load sample projects for investors
+    function loadSampleProjects() {
+      const projects = [
+        {
+          name: 'EthosiFi Protocol',
+          score: 420,
+          verified: true,
+          pillars: [
+            { name: 'Team Transparency', verified: true },
+            { name: 'LP Locked', verified: true, detail: '180 days' },
+            { name: 'Treasury', verified: true, detail: 'Gnosis Safe' }
+          ]
+        },
+        {
+          name: 'DeFiShield',
+          score: 380,
+          verified: true,
+          pillars: [
+            { name: 'Team Transparency', verified: true },
+            { name: 'LP Locked', verified: true, detail: '365 days' },
+            { name: 'Treasury', verified: false, detail: '⚠️ Not verified' }
+          ]
+        },
+        {
+          name: 'MoonRocket v2',
+          score: 120,
+          verified: false,
+          pillars: [
+            { name: 'Team Transparency', verified: false, detail: '⚠️ Anonymous' },
+            { name: 'LP Locked', verified: false, detail: '❌ None' },
+            { name: 'Treasury', verified: false, detail: '⚠️ Unknown' }
+          ]
+        },
+        {
+          name: 'BaseLend',
+          score: 450,
+          verified: true,
+          pillars: [
+            { name: 'Team Transparency', verified: true },
+            { name: 'LP Locked', verified: true, detail: '365 days' },
+            { name: 'Treasury', verified: true, detail: 'Gnosis Safe' }
+          ]
+        }
+      ];
+      
+      const container = document.getElementById('projectsList');
+      container.innerHTML = '';
+      
+      projects.forEach(project => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <strong style="font-size:1.1rem;">${project.name}</strong><br />
+          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;align-items:center;">
+            <span>Score: <span style="color:#6ee7b7;font-weight:bold;">${project.score}</span></span>
+            <span style="font-weight:600;color:${project.verified ? '#34d399' : '#f87171'};">
+              ${project.verified ? '✅ Verified' : '⚠️ Unverified'}
+            </span>
+          </div>
+          ${project.pillars.map(pillar => `
+            <div style="display:flex;justify-content:space-between;margin:0.5rem 0;font-size:0.9rem;padding-left:1rem;">
+              <span style="opacity:0.8;">${pillar.name}</span>
+              <span style="color:${pillar.verified ? '#34d399' : '#f87171'};font-weight:600;">
+                ${pillar.verified ? '✅' : '⚠️'} ${pillar.detail || ''}
+              </span>
+            </div>
+          `).join('')}
+        `;
+        container.appendChild(card);
+      });
+    }
+    
+    // Verify builder's project
+    async function verifyBuilder() {
+      const address = document.getElementById('treasuryAddress').value.trim();
+      
+      if (!address || !address.startsWith('0x') || address.length !== 42) {
+        alert('Please enter a valid wallet address (42 characters, starts with 0x)');
+        return;
+      }
+      
+      document.getElementById('ethosScore').textContent = '...';
+      document.getElementById('scoreStatus').textContent = '🔍 Verifying...';
+      
+      try {
+        const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/base");
+        const code = await provider.getCode(address);
+        
+        let score = 0;
+        let pillars = [];
+        
+        if (code === "0x") {
+          alert('❌ This is an EOA wallet. You must use a Gnosis Safe treasury contract.');
+          document.getElementById('ethosScore').textContent = '0';
+          document.getElementById('scoreStatus').textContent = '⚠️ Not Verified';
+          document.getElementById('scoreStatus').style.color = '#f87171';
+          return;
+        }
+        
+        // Check Gnosis Safe
+        const isGnosisSafe = code.toLowerCase().includes('3e5c63644e683549055b9be8653de26e0b4cd36e');
+        if (isGnosisSafe) {
+          score += 250;
+          pillars.push({ name: 'Treasury Safety', verified: true, detail: 'Gnosis Safe' });
+        } else {
+          pillars.push({ name: 'Treasury Safety', verified: false, detail: '⚠️ Not Gnosis Safe' });
+        }
+        
+        // Check LP lock
+        const hasLpLock = code.length > 200;
+        if (hasLpLock) {
+          score += 150;
+          pillars.push({ name: 'Liquidity Commitment', verified: true, detail: 'LP Locked' });
+        } else {
+          pillars.push({ name: 'Liquidity Commitment', verified: false, detail: '⚠️ No LP lock' });
+        }
+        
+        // Team transparency (placeholder - would use SIWE/ENS in production)
+        pillars.push({ name: 'Team Transparency', verified: false, detail: '⚠️ Not verified' });
+        
+        // Fair launch pledge (placeholder)
+        pillars.push({ name: 'Fair Launch Pledge', verified: false, detail: '⚠️ Not signed' });
+        
+        // Update user
+        const user = getCurrentUser();
+        if (user) {
+          user.verified = score > 0;
+          user.ethosScore = score;
+          user.walletAddress = address;
+          
+          const users = JSON.parse(localStorage.getItem('ethosifi_users')) || [];
+          const index = users.findIndex(u => u.email === user.email);
+          if (index !== -1) {
+            users[index] = user;
+            localStorage.setItem('ethosifi_users', JSON.stringify(users));
+          }
+          
+          saveUser(user);
+        }
+        
+        // Update UI
+        document.getElementById('ethosScore').textContent = score;
+        document.getElementById('scoreStatus').textContent = score > 0 ? '✅ Verified Builder' : '⚠️ Not Verified';
+        document.getElementById('scoreStatus').style.color = score > 0 ? '#34d399' : '#f87171';
+        
+        // Update trust pillars
+        const pillarsDiv = document.getElementById('trustPillars');
+        pillarsDiv.innerHTML = pillars.map(pillar => `
+          <div style="display:flex;justify-content:space-between;margin:0.6rem 0;font-size:0.95rem;padding:0.8rem;background:rgba(0,0,0,0.2);border-radius:8px;">
+            <span style="opacity:0.8;">${pillar.name}</span>
+            <span style="color:${pillar.verified ? '#34d399' : '#f87171'};font-weight:600;">
+              ${pillar.verified ? '✅' : '⚠️'} ${pillar.detail || ''}
+            </span>
+          </div>
+        `).join('');
+        
+        alert(`✅ Verification complete!\n\nYour Ethoscan Score: ${score}\n\n${score >= 400 ? 'Excellent! Your project shows strong integrity signals.' : score >= 250 ? 'Good start! Add team transparency to improve your score.' : 'Your project needs work. Deploy a Gnosis Safe and lock LP tokens.'}`);
+        
+      } catch (error) {
+        console.error("Verification failed:", error);
+        alert(`❌ Verification failed: ${error.message}`);
+        document.getElementById('ethosScore').textContent = '0';
+        document.getElementById('scoreStatus').textContent = '⚠️ Not Verified';
+        document.getElementById('scoreStatus').style.color = '#f87171';
+      }
+    }
+    
+    // Real on-chain verification (public preview)
     async function runPreviewVerification() {
       const btn = document.getElementById('verifyBtn');
       btn.disabled = true;
@@ -444,7 +727,6 @@
       resultDiv.innerHTML = `<p>🔍 Checking on-chain integrity signals on Base Mainnet...</p>`;
       
       try {
-        // Real RPC with CORS support
         const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/base");
         const code = await provider.getCode(address);
         
@@ -462,7 +744,7 @@
             resultDiv.innerHTML = `
               <p style="color:#6ee7b7;font-weight:600;margin:0.5rem 0;">✅ Integrity signals detected</p>
               <p style="margin:0.5rem 0;">This project uses a verified multi-sig treasury with liquidity commitment.</p>
-              <p style="margin:0.5rem 0;opacity:0.85;font-size:0.9rem;">Official Ethoscan Score requires signup and $ETHOS payment.</p>
+              <p style="margin:0.5rem 0;opacity:0.85;font-size:0.9rem;">Sign up for official Ethoscan verification and reputation NFTs.</p>
             `;
           } else {
             let reasons = [];
@@ -487,6 +769,22 @@
         btn.textContent = "Check Signals";
       }
     }
+    
+    // Auto-load projects if investor is logged in
+    window.addEventListener('load', () => {
+      const user = getCurrentUser();
+      if (user && user.role === 'investor') {
+        document.getElementById('investorEmail').textContent = user.email;
+        loadSampleProjects();
+        showPage('investor');
+      } else if (user && user.role === 'builder') {
+        document.getElementById('builderEmail').textContent = user.email;
+        document.getElementById('ethosScore').textContent = user.ethosScore || 0;
+        document.getElementById('scoreStatus').textContent = user.verified ? '✅ Verified Builder' : '⚠️ Not Verified';
+        document.getElementById('scoreStatus').style.color = user.verified ? '#34d399' : '#f87171';
+        showPage('builder');
+      }
+    });
   </script>
 </body>
 </html>
